@@ -1,6 +1,6 @@
 pkgname=earshot
 pkgver=0.1.0
-pkgrel=2
+pkgrel=3
 pkgdesc='Local speech-to-text library and CLI powered by whisper.cpp'
 arch=('x86_64')
 url='https://github.com/akemiff/earshot'
@@ -14,11 +14,14 @@ sha256sums=('54635fa5490af6410bfdf2601d926c4a934c2fa46e183b706975d6c49707ea6b')
 # CUDA compilation is memory intensive. Override with EARSHOT_BUILD_JOBS=4
 # on a machine with enough memory; two jobs are a safer default for AUR users.
 : "${EARSHOT_BUILD_JOBS:=2}"
+: "${EARSHOT_CUDA_ARCHITECTURES:=native}"
 
 build() {
     cmake -S "$srcdir/$pkgname-$pkgver" -B build \
         -DCMAKE_BUILD_TYPE=Release -DEARSHOT_BUILD_TESTS=OFF \
-        -DEARSHOT_BUILD_CLI=ON -DEARSHOT_CUDA=ON -DCMAKE_INSTALL_PREFIX=/usr
+        -DEARSHOT_BUILD_CLI=ON -DEARSHOT_CUDA=ON \
+        -DCMAKE_CUDA_ARCHITECTURES="$EARSHOT_CUDA_ARCHITECTURES" \
+        -DCMAKE_INSTALL_PREFIX=/usr
     cmake --build build --parallel "$EARSHOT_BUILD_JOBS"
 }
 
