@@ -9,7 +9,7 @@ depends=('gcc-libs' 'glibc')
 makedepends=('cmake' 'git')
 optdepends=('cuda: GPU acceleration' 'curl: download Whisper models from the CLI')
 source=("$pkgname-$pkgver.tar.gz::https://github.com/akemiff/earshot/archive/v$pkgver.tar.gz")
-sha256sums=('SKIP')
+sha256sums=('6b55b686a4bf055dbcbcb8c0b1e6607b49299424ed4c1c862a2cc141de5d0250')
 
 # CUDA compilation is memory intensive. Override with EARSHOT_BUILD_JOBS=4
 # on a machine with enough memory; two jobs are a safer default for AUR users.
