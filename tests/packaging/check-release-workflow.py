@@ -48,7 +48,20 @@ for job in ("cpu_deb", "cuda_deb", "appimage"):
 
 publish = [step for step in steps("release") if step.get("uses", "").startswith("softprops/action-gh-release@")]
 assert len(publish) == 1
+assert publish[0]["with"].get("draft") is True, "assets must upload to a draft"
 files = publish[0]["with"]["files"].splitlines()
 assert len(files) == 3 and len(set(files)) == 3, files
 assert all("*" not in file for file in files), files
+publish_index = steps("release").index(publish[0])
+before_upload = "\n".join(str(step.get("run", "")) for step in steps("release")[:publish_index])
+assert 'curl -sS' in before_upload and "-w '%{http_code}'" in before_upload
+assert '200)' in before_upload and '404)' in before_upload and "Release is already public" in before_upload
+after_upload = steps("release")[publish_index + 1:]
+assert len(after_upload) == 1, "publish only after one final verification step"
+finalize = after_upload[0]["run"]
+assert "gh api" in finalize and "steps.upload.outputs.id" in finalize
+assert "releases/$release_id" in finalize
+assert ".draft == true" in finalize and "assets" in finalize and "sort_by(.name)" in finalize
+assert "stat -c%s" in finalize, "verify uploaded asset sizes"
+assert "releases/$release_id" in finalize and "draft=false" in finalize
 print("Validated release workflow structure and three-artifact publishing contract")
