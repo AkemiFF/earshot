@@ -23,6 +23,7 @@ check_package() {
     [ "$(field "$deb" Package)" = "$name" ] || fail "$deb: expected Package: $name"
     [ "$(field "$deb" Version)" = "$version" ] || fail "$deb: expected Version: $version"
     arch=$(field "$deb" Architecture)
+    [ "$arch" = amd64 ] || fail "$deb: expected Architecture: amd64 (got $arch)"
     [ "$(basename "$deb")" = "${name}_${version}_${arch}.deb" ] ||
         fail "$deb: expected Debian-default filename ${name}_${version}_${arch}.deb"
     for relation in Conflicts Replaces; do
