@@ -1,0 +1,18 @@
+Source: earshot
+Section: sound
+Priority: optional
+Maintainer: BradAkemi <123939967+AkemiFF@users.noreply.github.com>
+Build-Depends: debhelper-compat (= 13), cmake, git
+Standards-Version: 4.7.0
+Homepage: https://github.com/akemiff/earshot
+Rules-Requires-Root: no
+
+Package: earshot
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Recommends: curl
+Suggests: nvidia-cuda-toolkit
+Description: local speech-to-text with whisper.cpp
+ earshot transcribes audio locally using whisper.cpp. It provides a C and C++
+ library, a command line interface, SRT/WebVTT/JSON output and optional CUDA
+ acceleration. Model weights are downloaded separately by the command line tool.

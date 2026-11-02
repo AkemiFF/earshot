@@ -1,0 +1,31 @@
+pkgname=earshot
+pkgver=0.1.0
+pkgrel=1
+pkgdesc='Local speech-to-text library and CLI powered by whisper.cpp'
+arch=('x86_64')
+url='https://github.com/akemiff/earshot'
+license=('MIT')
+depends=('gcc-libs' 'glibc')
+makedepends=('cmake' 'git')
+optdepends=('cuda: GPU acceleration' 'curl: download Whisper models from the CLI')
+source=("$pkgname-$pkgver.tar.gz::https://github.com/akemiff/earshot/archive/v$pkgver.tar.gz")
+sha256sums=('SKIP')
+
+build() {
+    cmake -S "$srcdir/$pkgname-$pkgver" -B build \
+        -DCMAKE_BUILD_TYPE=Release -DEARSHOT_BUILD_TESTS=OFF \
+        -DEARSHOT_BUILD_CLI=ON -DEARSHOT_CUDA=OFF -DCMAKE_INSTALL_PREFIX=/usr
+    cmake --build build --parallel
+}
+
+check() {
+    cmake -S "$srcdir/$pkgname-$pkgver" -B check-build \
+        -DCMAKE_BUILD_TYPE=Release -DEARSHOT_CUDA=OFF -DEARSHOT_BUILD_TESTS=ON
+    cmake --build check-build --parallel
+    ctest --test-dir check-build --output-on-failure
+}
+
+package() {
+    DESTDIR="$pkgdir" cmake --install build
+    install -Dm644 "$srcdir/$pkgname-$pkgver/LICENSE" "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}
