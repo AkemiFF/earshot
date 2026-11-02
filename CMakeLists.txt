@@ -19,6 +19,14 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 include(GNUInstallDirs)
+# Migrate build directories made with the former boolean option. A defaulted
+# ON used to mean auto-detect, not an explicit request for CUDA.
+if(DEFINED CACHE{EARSHOT_CUDA_AUTO_DEFAULT})
+    if(EARSHOT_CUDA_AUTO_DEFAULT AND EARSHOT_CUDA STREQUAL "ON")
+        set(EARSHOT_CUDA AUTO CACHE STRING "CUDA backend: AUTO, ON (required), or OFF" FORCE)
+    endif()
+    unset(EARSHOT_CUDA_AUTO_DEFAULT CACHE)
+endif()
 include(EarshotOptions)
 include(EarshotCompilerWarnings)
 include(EarshotDependencies)

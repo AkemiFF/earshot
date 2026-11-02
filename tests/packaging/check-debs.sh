@@ -30,6 +30,15 @@ if [ "${1:-}" = --test-cuda-config ]; then
     configure -DEARSHOT_CUDA=AUTO -DGGML_CUDA=ON || fail 'AUTO reconfiguration failed'
     grep -q '^GGML_CUDA:BOOL=OFF$' "$build_dir/CMakeCache.txt" ||
         fail 'AUTO retained a stale CUDA backend'
+    configure -DEARSHOT_CUDA=ON -DEARSHOT_CUDA_AUTO_DEFAULT=ON ||
+        fail 'legacy automatic CUDA cache did not migrate to AUTO'
+    grep -q '^EARSHOT_CUDA:STRING=AUTO$' "$build_dir/CMakeCache.txt" ||
+        fail 'legacy automatic CUDA cache did not become AUTO'
+    if configure -DEARSHOT_CUDA=ON; then
+        fail 'explicit CUDA request after legacy migration silently fell back to CPU'
+    fi
+    grep -q 'EARSHOT_CUDA=ON was requested' "$build_dir/configure.log" ||
+        fail 'explicit CUDA after legacy migration failed for the wrong reason'
     echo 'Validated CUDA configure/reconfigure transitions'
     exit 0
 fi
