@@ -29,11 +29,29 @@ earshot --translate -l fr --format vtt talk.wav
 earshot -p --stdout podcast.mp3
 ```
 
-Prebuilt Linux packages are published on the
-[GitHub Releases page](https://github.com/AkemiFF/earshot/releases) when
-available. The Debian package is CPU-only and works on Debian, Ubuntu and
-Linux Mint. Arch users can build the PKGBUILD in `packaging/aur` while the
-AUR package is unavailable.
+When a release is published, its [GitHub Releases page](https://github.com/AkemiFF/earshot/releases)
+provides three x86-64 artifacts:
+
+| Artifact | Variant | Install/run |
+|---|---|---|
+| `earshot_0.1.3_amd64.deb` | CPU-only Debian package | `sudo apt install ./earshot_0.1.3_amd64.deb` |
+| `earshot-cuda_0.1.3_amd64.deb` | CUDA Debian package | `sudo apt install ./earshot-cuda_0.1.3_amd64.deb` |
+| `earshot-0.1.3-x86_64.AppImage` | CPU-only portable CLI | `chmod +x earshot-0.1.3-x86_64.AppImage && ./earshot-0.1.3-x86_64.AppImage --help` |
+
+The `.deb` packages are **alternatives**, not add-ons: both install the same
+`earshot` command and development files, and installing one replaces the other.
+The CUDA package is built with CUDA toolkit **12.6** and needs the CUDA 12.6
+runtime libraries (`cuda-cudart-12-6` and `libcublas-12-6`) and a compatible
+NVIDIA driver on the target machine. It does not bundle the driver; install the
+required runtime packages from NVIDIA's repository if they are not already
+available. The AppImage does **not** provide GPU acceleration.
+
+These x86-64 artifacts are built on Ubuntu 22.04 with an Ubuntu 22.04+ /
+Debian 12+ baseline; compatibility with other distributions or older releases
+is not guaranteed. Model weights are not bundled with any artifact and are
+downloaded separately when needed. Arch users can build the PKGBUILD in
+`packaging/aur` while the AUR package is unavailable; its checksum remains
+`SKIP` until the v0.1.3 tag archive can be verified.
 
 Supported output formats are plain text, SRT, WebVTT and JSON. Input decoding
 is provided by vendored miniaudio, so ffmpeg is not required at runtime.
@@ -87,18 +105,13 @@ cmake --build build-tests -j$(nproc)
 ctest --test-dir build-tests --output-on-failure
 ```
 
-## Packaging roadmap
+## Packaging notes
 
-The project is intentionally split into a small executable/library and
-separately managed model weights. The first packaging targets should be:
-
-1. Arch AUR (`earshot` and `earshot-bin`);
-2. Debian/Ubuntu `.deb` and an APT repository;
-3. AppImage for portable CLI use;
-4. Flatpak for a graphical frontend.
-
-CUDA, VAD and vocal separation should remain optional package features. Model
-weights must not be silently embedded in the base package.
+The executable and library are packaged separately from model weights. The
+release pipeline targets CPU and CUDA Debian packages and a CPU AppImage;
+published assets should be checked on the release page before installing.
+Optional VAD weights are downloaded separately; vocal separation is not
+included in these packages.
 
 ## Development
 
