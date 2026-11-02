@@ -12,7 +12,7 @@ the model has been downloaded and supports CPU and CUDA acceleration.
 
 ```bash
 cmake -B build -DCMAKE_BUILD_TYPE=Release -DEARSHOT_CUDA=ON
-cmake --build build -j$(nproc)
+cmake --build build --parallel 2
 ./build/earshot --list-models
 ./build/earshot -l en --format txt,srt lesson.mp3
 ```
@@ -54,8 +54,8 @@ These x86-64 artifacts are built on Ubuntu 22.04 with an Ubuntu 22.04+ /
 Debian 12+ baseline; compatibility with other distributions or older releases
 is not guaranteed. Model weights are not bundled with any artifact and are
 downloaded separately when needed. Arch users can build the PKGBUILD in
-`packaging/aur` while the AUR package is unavailable; its checksum remains
-`SKIP` until the v0.1.3 tag archive can be verified.
+`packaging/aur` while the AUR package is unavailable. Verify its checksum
+against the published tag archive before installing a new release.
 
 Supported output formats are plain text, SRT, WebVTT and JSON. Input decoding
 is provided by vendored miniaudio, so ffmpeg is not required at runtime.
