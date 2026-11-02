@@ -4,6 +4,20 @@ set -eu
 
 fail() { echo "Package validation failed: $*" >&2; exit 1; }
 
+# Check the generated CPack configuration, not just the resulting metadata:
+# shlibdeps can fail before a CUDA .deb exists on a driverless build runner.
+if [ "${1:-}" = --test-cpack-metadata ]; then
+    [ "$#" -eq 3 ] || fail 'Usage: check-debs.sh --test-cpack-metadata CPU-CPackConfig CUDA-CPackConfig'
+    grep -Eq '^set\(CPACK_DEBIAN_PACKAGE_SHLIBDEPS "ON"\)$' "$2" ||
+        fail 'CPU package must retain shlibdeps scanning'
+    grep -Eq '^set\(CPACK_DEBIAN_PACKAGE_SHLIBDEPS "OFF"\)$' "$3" ||
+        fail 'CUDA package must skip shlibdeps scanning on driverless runners'
+    grep -Eq '^set\(CPACK_DEBIAN_PACKAGE_DEPENDS ".*cuda-cudart-12-6, libcublas-12-6' "$3" ||
+        fail 'CUDA 12.6 runtime dependencies missing from CPack configuration'
+    echo 'Validated CPU and CUDA CPack metadata'
+    exit 0
+fi
+
 # Exercise the cache transitions independently of CUDA compilation. Supply a
 # local whisper.cpp checkout to avoid fetching dependencies during the test.
 if [ "${1:-}" = --test-cuda-config ]; then
@@ -91,11 +105,11 @@ check_package "$cpu" earshot earshot-cuda
 check_package "$cuda" earshot-cuda earshot
 
 cuda_depends=$(field "$cuda" Depends)
-printf '%s\n' "$cuda_depends" | grep -Eq '(^|, *)libcuda1([ (]|,|$)' ||
-    fail "$cuda: Depends must include a CUDA driver alternative (libcuda1)"
-for dependency in cuda-cudart-12-6 libcublas-12-6; do
+for dependency in libgomp1 cuda-cudart-12-6 libcublas-12-6; do
     printf '%s\n' "$cuda_depends" | grep -Eq "(^|, *)${dependency}([ (]|,|$)" ||
-        fail "$cuda: Depends must include NVIDIA CUDA 12.6 runtime $dependency"
+        fail "$cuda: Depends must include $dependency"
 done
+printf '%s\n' "$cuda_depends" | grep -Eq '(^|, *)(libcuda1|nvidia-driver)([ (]|,|$)' &&
+    fail "$cuda: Depends must not require an unavailable driver package; install a compatible driver separately"
 
 echo "Validated earshot and earshot-cuda $version packages"

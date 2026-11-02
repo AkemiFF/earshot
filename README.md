@@ -43,8 +43,12 @@ The `.deb` packages are **alternatives**, not add-ons: both install the same
 The CUDA package is built with CUDA toolkit **12.6** and needs the CUDA 12.6
 runtime libraries (`cuda-cudart-12-6` and `libcublas-12-6`) and a compatible
 NVIDIA driver on the target machine. It does not bundle the driver; install the
-required runtime packages from NVIDIA's repository if they are not already
-available. The AppImage does **not** provide GPU acceleration.
+required runtime packages from NVIDIA's Ubuntu 22.04 CUDA repository if they
+are not already available. Install a CUDA 12.6-compatible NVIDIA driver for
+your GPU separately (for example via Ubuntu's driver manager) **before** using
+the CUDA variant; the driver is not a hard `.deb` dependency because driver
+package names vary by distribution and `libcuda1` is not available in Ubuntu
+22.04's repositories. The AppImage does **not** provide GPU acceleration.
 
 These x86-64 artifacts are built on Ubuntu 22.04 with an Ubuntu 22.04+ /
 Debian 12+ baseline; compatibility with other distributions or older releases

@@ -125,24 +125,29 @@ install(FILES
 # maintainers who prefer debhelper.
 set(CPACK_GENERATOR "DEB")
 if(GGML_CUDA)
+    # whisper.cpp discovers CUDA in a nested directory; its toolkit version is
+    # not exported to this scope. Discover it here for accurate DEB metadata.
+    find_package(CUDAToolkit REQUIRED)
     set(CPACK_PACKAGE_NAME "earshot-cuda")
     set(CPACK_DEBIAN_PACKAGE_CONFLICTS "earshot")
     set(CPACK_DEBIAN_PACKAGE_REPLACES "earshot")
-    # CUDA 12.6 from NVIDIA's APT repository: cudart and cuBLAS are linked by
-    # ggml-cuda, but dpkg-shlibdeps cannot resolve libraries outside standard
-    # system search paths. The driver is loaded separately at runtime.
-    set(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6, libgcc-s1, libcuda1 | nvidia-driver")
+    # The GPU driver (libcuda.so.1) is provided by the host, not by the CUDA
+    # toolkit, and is absent on driverless CI runners. Declare linked runtime
+    # libraries explicitly instead of scanning the executable with shlibdeps.
+    set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS OFF)
+    set(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6, libgcc-s1, libstdc++6, libgomp1")
     if(CUDAToolkit_VERSION VERSION_GREATER_EQUAL "12.6" AND
        CUDAToolkit_VERSION VERSION_LESS "12.7")
         string(APPEND CPACK_DEBIAN_PACKAGE_DEPENDS ", cuda-cudart-12-6, libcublas-12-6")
     else()
-        message(WARNING "earshot: CUDA ${CUDAToolkit_VERSION} Debian runtime dependencies are unmapped; check-debs.sh will reject this package")
+        message(FATAL_ERROR "earshot: CUDA ${CUDAToolkit_VERSION} Debian runtime dependencies are unmapped (expected 12.6.x)")
     endif()
 else()
     set(CPACK_PACKAGE_NAME "earshot")
     set(CPACK_DEBIAN_PACKAGE_CONFLICTS "earshot-cuda")
     set(CPACK_DEBIAN_PACKAGE_REPLACES "earshot-cuda")
     set(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6, libgcc-s1")
+    set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
 endif()
 set(CPACK_DEBIAN_FILE_NAME "DEB-DEFAULT")
 set(CPACK_PACKAGE_VENDOR "AkemiFF")
@@ -151,7 +156,6 @@ set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Local speech-to-text with whisper.cpp")
 set(CPACK_PACKAGE_DESCRIPTION "Offline speech-to-text library and CLI powered by whisper.cpp.")
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
 set(CPACK_DEBIAN_PACKAGE_SECTION "sound")
-set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
 # Model downloads invoke either tool when present; transcription works offline.
 set(CPACK_DEBIAN_PACKAGE_RECOMMENDS "curl | wget")
 include(CPack)
