@@ -116,7 +116,19 @@ install(FILES
 # source-package metadata under packaging/debian remains available for Debian
 # maintainers who prefer debhelper.
 set(CPACK_GENERATOR "DEB")
-set(CPACK_PACKAGE_NAME "earshot")
+if(GGML_CUDA)
+    set(CPACK_PACKAGE_NAME "earshot-cuda")
+    set(CPACK_DEBIAN_PACKAGE_CONFLICTS "earshot")
+    set(CPACK_DEBIAN_PACKAGE_REPLACES "earshot")
+    # shlibdeps finds linked CUDA libraries; the driver is loaded at runtime.
+    set(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6, libgcc-s1, libcuda1 | nvidia-driver")
+else()
+    set(CPACK_PACKAGE_NAME "earshot")
+    set(CPACK_DEBIAN_PACKAGE_CONFLICTS "earshot-cuda")
+    set(CPACK_DEBIAN_PACKAGE_REPLACES "earshot-cuda")
+    set(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6, libgcc-s1")
+endif()
+set(CPACK_DEBIAN_FILE_NAME "DEB-DEFAULT")
 set(CPACK_PACKAGE_VENDOR "AkemiFF")
 set(CPACK_PACKAGE_CONTACT "123939967+AkemiFF@users.noreply.github.com")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Local speech-to-text with whisper.cpp")
@@ -124,7 +136,8 @@ set(CPACK_PACKAGE_DESCRIPTION "Offline speech-to-text library and CLI powered by
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
 set(CPACK_DEBIAN_PACKAGE_SECTION "sound")
 set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
-set(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6, libgcc-s1")
+# Model downloads invoke either tool when present; transcription works offline.
+set(CPACK_DEBIAN_PACKAGE_RECOMMENDS "curl | wget")
 include(CPack)
 
 install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/README.md" "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE"
