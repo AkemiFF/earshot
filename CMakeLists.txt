@@ -43,8 +43,12 @@ target_compile_definitions(earshot
     PRIVATE EARSHOT_VERSION="${PROJECT_VERSION}"
     PUBLIC  EARSHOT_VERSION_STRING="${PROJECT_VERSION}")
 
-target_link_libraries(earshot PUBLIC whisper)
+target_link_libraries(earshot PRIVATE $<BUILD_INTERFACE:whisper>)
 earshot_apply_warnings(earshot)
+
+if(GGML_CUDA AND NOT MSVC)
+    target_compile_definitions(earshot PRIVATE EARSHOT_HAVE_CUDA=1)
+endif()
 
 # ---------------------------------------------------------------------------
 # command line interface

@@ -21,7 +21,6 @@ install_manifest.txt
 *.flatpak
 *.snap
 pkg/
-src/
 pkgsrc/
 packaging/aur/*.tar.gz
 *.SRCINFO
