@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=earshot
+Comment=Local speech-to-text from the command line
+Exec=earshot
+Icon=earshot
+Terminal=true
+Categories=AudioVideo;Audio;
