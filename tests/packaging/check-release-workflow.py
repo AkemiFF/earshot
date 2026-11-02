@@ -8,6 +8,10 @@ import yaml
 
 root = Path(__file__).resolve().parents[2]
 workflow = yaml.safe_load((root / ".github/workflows/release.yml").read_text())
+triggers = workflow.get("on", workflow.get(True))  # PyYAML treats YAML 1.1 'on' as boolean.
+assert set(triggers) == {"push"}, "releases must only run on tag pushes"
+assert set(triggers["push"]) == {"tags"}, "branch pushes must not publish releases"
+assert triggers["push"]["tags"] == ["v*.*.*"]
 jobs = workflow["jobs"]
 assert set(jobs) == {"cpu_deb", "cuda_deb", "appimage", "release"}
 assert set(jobs["release"]["needs"]) == {"cpu_deb", "cuda_deb", "appimage"}
@@ -21,8 +25,23 @@ def commands(job):
     return "\n".join(str(step.get("run", "")) for step in steps(job))
 
 
-for job in ("cpu_deb", "cuda_deb", "appimage", "release"):
-    assert jobs[job]["runs-on"] == "ubuntu-22.04", job
+def installed_packages(job):
+    return set(
+        package
+        for line in commands(job).splitlines()
+        if "sudo apt-get install -y " in line
+        for package in line.split("sudo apt-get install -y ", 1)[1].split()
+    )
+
+
+for job in jobs:
+    assert jobs[job]["runs-on"] == "ubuntu-22.04", f"{job} must pin the 22.04 ABI baseline"
+
+for job in ("cpu_deb", "cuda_deb"):
+    assert {"file", "dpkg-dev"} <= installed_packages(job), f"{job}: missing CPack tools"
+
+assert {"curl", "binutils"} <= installed_packages("appimage")
+assert "binutils" in installed_packages("release"), "AppImage verification needs readelf"
 
 for job in ("cpu_deb", "appimage"):
     assert "-DEARSHOT_CUDA=OFF" in commands(job)
