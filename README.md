@@ -1,5 +1,9 @@
 # earshot
 
+[![CI](https://github.com/AkemiFF/earshot/actions/workflows/ci.yml/badge.svg)](https://github.com/AkemiFF/earshot/actions/workflows/ci.yml)
+[![Latest release](https://img.shields.io/github/v/release/AkemiFF/earshot)](https://github.com/AkemiFF/earshot/releases)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 `earshot` is a local speech-to-text library and command-line tool built on
 [whisper.cpp](https://github.com/ggml-org/whisper.cpp). It runs offline after
 the model has been downloaded and supports CPU and CUDA acceleration.
@@ -24,6 +28,12 @@ earshot --device cpu -m small.en interview.m4a
 earshot --translate -l fr --format vtt talk.wav
 earshot -p --stdout podcast.mp3
 ```
+
+Prebuilt Linux packages are published on the
+[GitHub Releases page](https://github.com/AkemiFF/earshot/releases) when
+available. The Debian package is CPU-only and works on Debian, Ubuntu and
+Linux Mint. Arch users can build the PKGBUILD in `packaging/aur` while the
+AUR package is unavailable.
 
 Supported output formats are plain text, SRT, WebVTT and JSON. Input decoding
 is provided by vendored miniaudio, so ffmpeg is not required at runtime.
@@ -89,6 +99,22 @@ separately managed model weights. The first packaging targets should be:
 
 CUDA, VAD and vocal separation should remain optional package features. Model
 weights must not be silently embedded in the base package.
+
+## Development
+
+```bash
+git clone https://github.com/AkemiFF/earshot.git
+cd earshot
+cmake -S . -B build-tests -G Ninja \
+  -DCMAKE_BUILD_TYPE=Debug \
+  -DEARSHOT_CUDA=OFF \
+  -DEARSHOT_BUILD_TESTS=ON
+cmake --build build-tests
+ctest --test-dir build-tests --output-on-failure
+```
+
+Contributions are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md)
+before opening a pull request.
 
 ## Licence
 
