@@ -4,6 +4,33 @@ set -eu
 
 fail() { echo "Package validation failed: $*" >&2; exit 1; }
 
+# With shlibdeps disabled for CUDA, only explicitly mapped libraries may be
+# linked into the CLI. Use SONAMEs, not prefixes, so new majors fail closed.
+check_cuda_needed() {
+    needed=$(sed -n '/(NEEDED)/s/.*\[\([^]]*\)\].*/\1/p' "$1")
+    [ -n "$needed" ] || fail "no ELF DT_NEEDED entries in $1"
+    for library in libcudart.so.12 libcublas.so.12 libcuda.so.1; do
+        printf '%s\n' "$needed" | grep -Fxq "$library" ||
+            fail "$1: expected CUDA shared library $library"
+    done
+    while IFS= read -r library; do
+        case "$library" in
+            libcudart.so.12|libcublas.so.12|libcublasLt.so.12|libcuda.so.1|\
+            libgomp.so.1|libstdc++.so.6|libgcc_s.so.1|\
+            libc.so.6|libm.so.6|libpthread.so.0|libdl.so.2|librt.so.1|ld-linux-x86-64.so.2) ;;
+            *) fail "$1: unexpected ELF dependency $library (add an explicit Debian dependency or remove the linkage)" ;;
+        esac
+    done <<EOF
+$needed
+EOF
+}
+
+if [ "${1:-}" = --test-cuda-needed ]; then
+    [ "$#" -eq 2 ] || fail 'Usage: check-debs.sh --test-cuda-needed READELF-DYNAMIC-OUTPUT'
+    check_cuda_needed "$2"
+    exit 0
+fi
+
 # Check the generated CPack configuration, not just the resulting metadata:
 # shlibdeps can fail before a CUDA .deb exists on a driverless build runner.
 if [ "${1:-}" = --test-cpack-metadata ]; then
@@ -111,5 +138,14 @@ for dependency in libgomp1 cuda-cudart-12-6 libcublas-12-6; do
 done
 printf '%s\n' "$cuda_depends" | grep -Eq '(^|, *)(libcuda1|nvidia-driver)([ (]|,|$)' &&
     fail "$cuda: Depends must not require an unavailable driver package; install a compatible driver separately"
+
+command -v readelf > /dev/null 2>&1 || fail 'readelf (binutils) is required for CUDA dependency validation'
+binary_dir=$(mktemp -d)
+trap 'rm -rf "$binary_dir"' EXIT HUP INT TERM
+dpkg-deb --fsys-tarfile "$cuda" | tar -xOf - ./usr/bin/earshot > "$binary_dir/earshot" ||
+    fail "$cuda: cannot extract CLI for ELF dependency validation"
+readelf -d "$binary_dir/earshot" > "$binary_dir/dynamic" ||
+    fail "$cuda: CLI is not a readable ELF binary"
+check_cuda_needed "$binary_dir/dynamic"
 
 echo "Validated earshot and earshot-cuda $version packages"

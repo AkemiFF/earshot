@@ -51,6 +51,7 @@ cuda = commands("cuda_deb")
 assert "developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64" in cuda
 assert "cuda-toolkit-12-6" in cuda
 assert "-DEARSHOT_CUDA=ON" in cuda
+assert "-DGGML_CUDA_NCCL=OFF" in cuda, "release CUDA must not link optional NCCL"
 assert "-DGGML_NATIVE=OFF" in cuda
 assert "-DCMAKE_CUDA_ARCHITECTURES=" in cuda
 assert "86" in cuda
