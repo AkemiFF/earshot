@@ -1,5 +1,5 @@
 pkgname=earshot
-pkgver=0.1.0
+pkgver=0.1.1
 pkgrel=3
 pkgdesc='Local speech-to-text library and CLI powered by whisper.cpp'
 arch=('x86_64')

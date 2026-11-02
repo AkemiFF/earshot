@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.20)
 
 project(earshot
-    VERSION 0.1.0
+    VERSION 0.1.1
     DESCRIPTION "Local speech-to-text, from the command line"
     HOMEPAGE_URL "https://github.com/akemiff/earshot"
     LANGUAGES C CXX)

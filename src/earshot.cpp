@@ -305,7 +305,7 @@ bool earshot_probe_audio(const char * path, earshot_audio_info * info, char * er
     return true;
 }
 
-const char * earshot_version(void) { return "0.1.0"; }
+const char * earshot_version(void) { return "0.1.1"; }
 const char * earshot_backend_version(void) { return whisper_version(); }
 const char * earshot_backend(void) {
 #ifdef EARSHOT_HAVE_CUDA

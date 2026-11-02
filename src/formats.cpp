@@ -90,7 +90,7 @@ std::string to_vtt(const Result & result) {
 
 std::string to_json(const Result & result, const std::string & source_path) {
     std::ostringstream output;
-    output << "{\n  \"version\": \"0.1.0\",\n  \"source\": \"" << json_escape(source_path)
+    output << "{\n  \"version\": \"0.1.1\",\n  \"source\": \"" << json_escape(source_path)
            << "\",\n  \"language\": \"" << json_escape(result.language) << "\",\n  \"duration\": "
            << std::fixed << std::setprecision(2) << static_cast<double>(result.audio_duration_ms) / 1000.0
            << ",\n  \"segments\": [\n";
