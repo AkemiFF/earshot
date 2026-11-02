@@ -1,7 +1,7 @@
 #ifndef EARSHOT_CLI_VERSION_HPP
 #define EARSHOT_CLI_VERSION_HPP
 
-#define EARSHOT_CLI_VERSION "0.1.1"
+#define EARSHOT_CLI_VERSION "0.1.2"
 
 namespace earshot::cli {
 

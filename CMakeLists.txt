@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.20)
 
 project(earshot
-    VERSION 0.1.1
+    VERSION 0.1.2
     DESCRIPTION "Local speech-to-text, from the command line"
     HOMEPAGE_URL "https://github.com/akemiff/earshot"
     LANGUAGES C CXX)
@@ -111,6 +111,21 @@ install(FILES
     "${CMAKE_CURRENT_BINARY_DIR}/earshotConfig.cmake"
     "${CMAKE_CURRENT_BINARY_DIR}/earshotConfigVersion.cmake"
     DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/earshot")
+
+# CPack provides a portable binary Debian package for GitHub Releases. The
+# source-package metadata under packaging/debian remains available for Debian
+# maintainers who prefer debhelper.
+set(CPACK_GENERATOR "DEB")
+set(CPACK_PACKAGE_NAME "earshot")
+set(CPACK_PACKAGE_VENDOR "AkemiFF")
+set(CPACK_PACKAGE_CONTACT "123939967+AkemiFF@users.noreply.github.com")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Local speech-to-text with whisper.cpp")
+set(CPACK_PACKAGE_DESCRIPTION "Offline speech-to-text library and CLI powered by whisper.cpp.")
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
+set(CPACK_DEBIAN_PACKAGE_SECTION "sound")
+set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6, libgcc-s1")
+include(CPack)
 
 install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/README.md" "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE"
         DESTINATION "${CMAKE_INSTALL_DATADIR}/doc/earshot" OPTIONAL)

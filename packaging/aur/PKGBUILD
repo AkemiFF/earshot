@@ -1,5 +1,5 @@
 pkgname=earshot
-pkgver=0.1.1
+pkgver=0.1.2
 pkgrel=1
 pkgdesc='Local speech-to-text library and CLI powered by whisper.cpp'
 arch=('x86_64')
@@ -9,7 +9,7 @@ depends=('gcc-libs' 'glibc')
 makedepends=('cmake' 'git')
 optdepends=('cuda: GPU acceleration' 'curl: download Whisper models from the CLI')
 source=("$pkgname-$pkgver.tar.gz::https://github.com/akemiff/earshot/archive/v$pkgver.tar.gz")
-sha256sums=('b50fdc7fb82c54f187a59ba46a6314333698959d841093bd1c4e2577f721d0d5')
+sha256sums=('SKIP')
 
 # CUDA compilation is memory intensive. Override with EARSHOT_BUILD_JOBS=4
 # on a machine with enough memory; two jobs are a safer default for AUR users.

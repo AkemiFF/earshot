@@ -4,7 +4,7 @@
 #include "earshot/earshot.h"
 
 int main() {
-    assert(std::strcmp(earshot_version(), "0.1.1") == 0);
+    assert(std::strcmp(earshot_version(), "0.1.2") == 0);
     assert(earshot_gpu_device_count() >= 0);
     const char * const * formats = earshot_supported_formats();
     assert(formats != nullptr && formats[0] != nullptr);

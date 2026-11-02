@@ -140,7 +140,7 @@ void earshot_result_free(earshot_result * result);
 bool earshot_probe_audio(const char * path, earshot_audio_info * info,
                          char * error, size_t error_size);
 
-/* "0.1.1" */
+/* "0.1.2" */
 const char * earshot_version(void);
 
 /* Version of the embedded whisper.cpp runtime. */
