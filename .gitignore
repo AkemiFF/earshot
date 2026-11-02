@@ -1,0 +1,54 @@
+# Build directories
+build/
+build-*/
+out/
+dist/
+cmake-build-*/
+compile_commands.json
+CMakeCache.txt
+CMakeFiles/
+Testing/
+CTestTestfile.cmake
+_deps/
+install_manifest.txt
+
+# Packaging artefacts
+*.pkg.tar.zst
+*.pkg.tar.xz
+*.deb
+*.rpm
+*.AppImage
+*.flatpak
+*.snap
+pkg/
+src/
+pkgsrc/
+packaging/aur/*.tar.gz
+*.SRCINFO
+
+# Models and audio never belong in git
+*.bin
+*.gguf
+*.onnx
+models/
+*.wav
+*.mp3
+*.m4a
+*.flac
+*.ogg
+*.opus
+*.mp4
+*.mkv
+
+# Editors and OS noise
+.vscode/
+.idea/
+*.swp
+*~
+.DS_Store
+.clangd/
+.cache/
+
+# Local overrides
+.env
+*.local
