@@ -20,6 +20,10 @@ else()
         GIT_PROGRESS   TRUE)
 
     FetchContent_MakeAvailable(whisper_cpp)
+    # whisper.cpp disables install rules for its standalone examples. That
+    # cache setting must not leak into the parent project: earshot itself has
+    # install rules for the library, headers, CLI and CMake package config.
+    set(CMAKE_SKIP_INSTALL_RULES OFF CACHE BOOL "" FORCE)
     message(STATUS "earshot: whisper.cpp ${EARSHOT_WHISPER_GIT_TAG} fetched")
 endif()
 
