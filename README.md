@@ -50,6 +50,20 @@ the CUDA variant; the driver is not a hard `.deb` dependency because driver
 package names vary by distribution and `libcuda1` is not available in Ubuntu
 22.04's repositories. The AppImage does **not** provide GPU acceleration.
 
+On Ubuntu 22.04, configure the NVIDIA CUDA repository before installing the
+CUDA package (follow NVIDIA's [official installation guide](https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html)
+for other distributions):
+
+```bash
+curl -fLO https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-keyring_1.1-1_all.deb
+sudo dpkg -i cuda-keyring_1.1-1_all.deb
+sudo apt update
+sudo apt install ./earshot-cuda_0.1.3_amd64.deb
+```
+
+The CPU packages use a conservative x86-64 instruction baseline for portability;
+building locally with native CPU optimizations may improve CPU-only speed.
+
 These x86-64 artifacts are built on Ubuntu 22.04 with an Ubuntu 22.04+ /
 Debian 12+ baseline; compatibility with other distributions or older releases
 is not guaranteed. Model weights are not bundled with any artifact and are
