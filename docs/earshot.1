@@ -1,0 +1,56 @@
+.TH EARSHOT 1 "November 2026" "earshot 0.1.0" "User Commands"
+.SH NAME
+earshot \- local speech-to-text with whisper.cpp
+.SH SYNOPSIS
+.B earshot
+[OPTIONS] FILE...
+.SH DESCRIPTION
+.B earshot
+transcribes audio locally. It supports CPU and CUDA backends, automatic language
+detection, optional Silero voice activity detection, and TXT, SRT, WebVTT and
+JSON output.
+.SH EXAMPLES
+.B earshot -l en lesson.mp3
+.br
+.B earshot --format srt,vtt -o subtitles lesson.m4a
+.br
+.B earshot --device cpu -m small.en interview.wav
+.SH OPTIONS
+.TP
+.BI "-m, --model " NAME
+Whisper model name or path to a GGML model. Defaults to large-v3-turbo.
+.TP
+.BI "-l, --language " LANG
+Spoken language code, or auto for detection.
+.TP
+.B --translate
+Translate the speech to English instead of transcribing it verbatim.
+.TP
+.B --no-vad
+Disable voice activity detection.
+.TP
+.BI "-o, --output " PATH
+Output file or directory. The default is next to the input file.
+.TP
+.BI "--format " LIST
+Comma-separated txt, srt, vtt or json formats.
+.TP
+.B -p, --paragraphs
+Group text output into readable paragraphs.
+.TP
+.B --device auto|cpu|cuda
+Select the inference backend.
+.TP
+.B --force
+Overwrite existing output files.
+.TP
+.B --help
+Show the complete option list.
+.SH FILES
+.TP
+.I ~/.cache/earshot/models
+Downloaded model weights, unless XDG_CACHE_HOME or --models-dir is used.
+.SH SEE ALSO
+.BR ffmpeg (1)
+.SH AUTHOR
+BradAkemi
