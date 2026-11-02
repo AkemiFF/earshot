@@ -77,6 +77,8 @@ while read -r soname path; do
 done <<EOF
 $libs
 EOF
+sh "$root/packaging/appimage/check-glibc.sh" "$appdir" ||
+    fail 'staged AppDir exceeds GLIBC_2.35 baseline'
 
 # Pin both the release URL and the exact digest; never execute an unchecked
 # downloaded binary. Run via extraction so CI does not need FUSE.
@@ -98,5 +100,7 @@ staged_image="$work/earshot-${version}-x86_64.AppImage"
 ARCH=x86_64 APPIMAGE_EXTRACT_AND_RUN=1 "$tool" --runtime-file "$runtime" \
     --mksquashfs-opt -processors --mksquashfs-opt 2 "$appdir" "$staged_image"
 /bin/chmod +x "$staged_image"
+sh "$root/tests/packaging/check-appimage.sh" "$staged_image" "$version" ||
+    fail 'finished AppImage validation failed'
 mv "$staged_image" "$image"
 echo "Built $image"
