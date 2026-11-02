@@ -1,6 +1,6 @@
 pkgname=earshot
 pkgver=0.1.0
-pkgrel=1
+pkgrel=2
 pkgdesc='Local speech-to-text library and CLI powered by whisper.cpp'
 arch=('x86_64')
 url='https://github.com/akemiff/earshot'
@@ -11,17 +11,21 @@ optdepends=('cuda: GPU acceleration' 'curl: download Whisper models from the CLI
 source=("$pkgname-$pkgver.tar.gz::https://github.com/akemiff/earshot/archive/v$pkgver.tar.gz")
 sha256sums=('54635fa5490af6410bfdf2601d926c4a934c2fa46e183b706975d6c49707ea6b')
 
+# CUDA compilation is memory intensive. Override with EARSHOT_BUILD_JOBS=4
+# on a machine with enough memory; two jobs are a safer default for AUR users.
+: "${EARSHOT_BUILD_JOBS:=2}"
+
 build() {
     cmake -S "$srcdir/$pkgname-$pkgver" -B build \
         -DCMAKE_BUILD_TYPE=Release -DEARSHOT_BUILD_TESTS=OFF \
-        -DEARSHOT_BUILD_CLI=ON -DEARSHOT_CUDA=OFF -DCMAKE_INSTALL_PREFIX=/usr
-    cmake --build build --parallel
+        -DEARSHOT_BUILD_CLI=ON -DEARSHOT_CUDA=ON -DCMAKE_INSTALL_PREFIX=/usr
+    cmake --build build --parallel "$EARSHOT_BUILD_JOBS"
 }
 
 check() {
     cmake -S "$srcdir/$pkgname-$pkgver" -B check-build \
         -DCMAKE_BUILD_TYPE=Release -DEARSHOT_CUDA=OFF -DEARSHOT_BUILD_TESTS=ON
-    cmake --build check-build --parallel
+    cmake --build check-build --parallel "$EARSHOT_BUILD_JOBS"
     ctest --test-dir check-build --output-on-failure
 }
 
