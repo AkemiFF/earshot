@@ -51,11 +51,18 @@ earshot_apply_warnings(earshot)
 # ---------------------------------------------------------------------------
 if(EARSHOT_BUILD_CLI)
     file(GLOB EARSHOT_CLI_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/cli/*.cpp")
+    list(REMOVE_ITEM EARSHOT_CLI_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/cli/main.cpp")
 
-    add_executable(earshot_cli ${EARSHOT_CLI_SOURCES})
+    # Everything except main() lives in a small library so the unit tests can
+    # exercise the argument parser, the config reader and the model catalogue.
+    add_library(earshot_cli_common STATIC ${EARSHOT_CLI_SOURCES})
+    target_include_directories(earshot_cli_common PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/cli)
+    target_link_libraries(earshot_cli_common PUBLIC earshot)
+    earshot_apply_warnings(earshot_cli_common)
+
+    add_executable(earshot_cli "${CMAKE_CURRENT_SOURCE_DIR}/cli/main.cpp")
     set_target_properties(earshot_cli PROPERTIES OUTPUT_NAME earshot)
-    target_include_directories(earshot_cli PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/cli)
-    target_link_libraries(earshot_cli PRIVATE earshot)
+    target_link_libraries(earshot_cli PRIVATE earshot_cli_common)
     earshot_apply_warnings(earshot_cli)
 
     install(TARGETS earshot_cli RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}")
