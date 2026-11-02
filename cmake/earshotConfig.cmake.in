@@ -1,0 +1,9 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+
+find_dependency(whisper CONFIG)
+
+include("${CMAKE_CURRENT_LIST_DIR}/earshotTargets.cmake")
+
+check_required_components(earshot)
