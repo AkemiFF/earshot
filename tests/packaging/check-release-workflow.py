@@ -47,6 +47,15 @@ for job in ("cpu_deb", "appimage"):
     assert "-DEARSHOT_CUDA=OFF" in commands(job)
     assert "-DGGML_NATIVE=OFF" in commands(job)
 
+# Native=OFF alone enables host-dependent instruction sets in whisper.cpp on
+# Ubuntu runners. Check the configure step, not unrelated shell commands.
+for job in ("cpu_deb", "cuda_deb", "appimage"):
+    configure = [step for step in steps(job) if step.get("name", "").startswith("Configure ")]
+    assert len(configure) == 1, f"{job}: expected one configure step"
+    options = configure[0]["run"].split()
+    for feature in ("SSE42", "AVX", "AVX2", "FMA", "F16C", "BMI2"):
+        assert f"-DGGML_{feature}=OFF" in options, f"{job}: GGML_{feature} must be OFF"
+
 cuda = commands("cuda_deb")
 assert "developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64" in cuda
 assert "cuda-toolkit-12-6" in cuda

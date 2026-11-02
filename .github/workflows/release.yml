@@ -33,6 +33,12 @@ jobs:
           -DCMAKE_BUILD_TYPE=Release
           -DEARSHOT_CUDA=OFF
           -DGGML_NATIVE=OFF
+          -DGGML_SSE42=OFF
+          -DGGML_AVX=OFF
+          -DGGML_AVX2=OFF
+          -DGGML_FMA=OFF
+          -DGGML_F16C=OFF
+          -DGGML_BMI2=OFF
           -DEARSHOT_BUILD_TESTS=OFF
           -DEARSHOT_BUILD_CLI=ON
 
@@ -79,6 +85,12 @@ jobs:
           -DEARSHOT_CUDA=ON
           -DGGML_CUDA_NCCL=OFF
           -DGGML_NATIVE=OFF
+          -DGGML_SSE42=OFF
+          -DGGML_AVX=OFF
+          -DGGML_AVX2=OFF
+          -DGGML_FMA=OFF
+          -DGGML_F16C=OFF
+          -DGGML_BMI2=OFF
           -DCMAKE_CUDA_COMPILER=/usr/local/cuda-12.6/bin/nvcc
           -DCMAKE_CUDA_ARCHITECTURES='75;86;89'
           -DEARSHOT_BUILD_TESTS=OFF
@@ -121,6 +133,12 @@ jobs:
           -DCMAKE_BUILD_TYPE=Release
           -DEARSHOT_CUDA=OFF
           -DGGML_NATIVE=OFF
+          -DGGML_SSE42=OFF
+          -DGGML_AVX=OFF
+          -DGGML_AVX2=OFF
+          -DGGML_FMA=OFF
+          -DGGML_F16C=OFF
+          -DGGML_BMI2=OFF
           -DEARSHOT_BUILD_TESTS=OFF
           -DEARSHOT_BUILD_CLI=ON
 
