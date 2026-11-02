@@ -19,29 +19,7 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 include(GNUInstallDirs)
-# EarshotOptions defaults to automatic CUDA detection. Only an explicit ON
-# request should turn a missing toolkit into a configuration error.
-if(NOT DEFINED CACHE{EARSHOT_CUDA_AUTO_DEFAULT})
-    if(DEFINED EARSHOT_CUDA)
-        set(EARSHOT_CUDA_AUTO_DEFAULT OFF CACHE INTERNAL "CUDA option was initially defaulted")
-    else()
-        set(EARSHOT_CUDA_AUTO_DEFAULT ON CACHE INTERNAL "CUDA option was initially defaulted")
-    endif()
-endif()
-set(EARSHOT_CUDA_REQUESTED OFF)
-if(DEFINED EARSHOT_CUDA AND EARSHOT_CUDA AND NOT EARSHOT_CUDA_AUTO_DEFAULT)
-    set(EARSHOT_CUDA_REQUESTED ON)
-endif()
 include(EarshotOptions)
-if(EARSHOT_CUDA_REQUESTED AND GGML_CUDA AND NOT DEFINED EARSHOT_NVCC)
-    find_program(EARSHOT_NVCC nvcc PATHS /opt/cuda/bin ENV CUDA_HOME PATH_SUFFIXES bin)
-endif()
-if(EARSHOT_CUDA_REQUESTED AND NOT EARSHOT_NVCC)
-    message(FATAL_ERROR "earshot: EARSHOT_CUDA=ON was requested but the CUDA toolkit (nvcc) was not found")
-endif()
-if(EARSHOT_CUDA_REQUESTED AND NOT GGML_CUDA)
-    message(FATAL_ERROR "earshot: EARSHOT_CUDA=ON was requested but GGML_CUDA is disabled")
-endif()
 include(EarshotCompilerWarnings)
 include(EarshotDependencies)
 
@@ -142,8 +120,16 @@ if(GGML_CUDA)
     set(CPACK_PACKAGE_NAME "earshot-cuda")
     set(CPACK_DEBIAN_PACKAGE_CONFLICTS "earshot")
     set(CPACK_DEBIAN_PACKAGE_REPLACES "earshot")
-    # shlibdeps finds linked CUDA libraries; the driver is loaded at runtime.
+    # CUDA 12.6 from NVIDIA's APT repository: cudart and cuBLAS are linked by
+    # ggml-cuda, but dpkg-shlibdeps cannot resolve libraries outside standard
+    # system search paths. The driver is loaded separately at runtime.
     set(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6, libgcc-s1, libcuda1 | nvidia-driver")
+    if(CUDAToolkit_VERSION VERSION_GREATER_EQUAL "12.6" AND
+       CUDAToolkit_VERSION VERSION_LESS "12.7")
+        string(APPEND CPACK_DEBIAN_PACKAGE_DEPENDS ", cuda-cudart-12-6, libcublas-12-6")
+    else()
+        message(WARNING "earshot: CUDA ${CUDAToolkit_VERSION} Debian runtime dependencies are unmapped; check-debs.sh will reject this package")
+    endif()
 else()
     set(CPACK_PACKAGE_NAME "earshot")
     set(CPACK_DEBIAN_PACKAGE_CONFLICTS "earshot-cuda")
